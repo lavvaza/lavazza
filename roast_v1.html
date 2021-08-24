@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Lavazza</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/main.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/common.css?v=1">
+	<script src="resources/jquery.min.js"></script>
+	<script src="./resources/js/model.js?v=1"></script>
+	<script src="./resources/js/utils.js?v=1"></script>
+	<style>
+		#footer_section {
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			top: unset;
+			text-align: center;
+			height: 100px;
+			display: none;
+
+		}
+
+		.navigation_btn {
+			font-size: 50px;
+			padding: 2px 18px;
+			line-height: 1;
+			border-radius: 100%;
+			color: brown;
+			background: white;
+			border: unset;
+		}
+	</style>
+</head>
+
+<body>
+
+	<img class="home_icon" src="./resources/images/home.png" onclick="go_to_home()">
+	<div id="introduction_screen_text">
+		<div class="number_text">1</div>
+		<div class="line_text">___</div>
+		<div class="stage_text">TOSTATURA</div>
+	</div>
+
+
+	<div id="footer_section">
+		<img class="arrow_icon" src="./resources/images/arrow_dark.png" 
+			id="navigation_btn" onclick="confirmSelection()">
+	</div>
+	<script>
+
+		let blend = BLEND;
+
+		var model3d = roast[blend]["model"];
+		var camera, scene, renderer, container, raycaster, mouse, pivot_point, manager;
+
+		var model_object = {};
+		var correct_3dobject;
+		var wrong_3dobject;
+		var answer_3dobject;
+		var model_selection = {};
+		var user_selected = [];
+
+		var is_correct = false;
+
+		setTimeout(function() 
+		{
+			document.getElementById('footer_section').style.display = "block";
+			document.getElementById("introduction_screen_text").remove();
+			$(".home_icon").remove();
+
+		},3 * 1000)
+
+		function confirmSelection() {
+			window.location.href = "aromatic.html?blend="+BLEND;
+		}
+
+
+
+	</script>
+
+	<script type="module">
+
+		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+		import { ARButton } from './jsm/webxr/ARButton.js';
+		import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+		import { TTFLoader } from './jsm/loaders/TTFLoader.js';
+		import { FontLoader } from './jsm/loaders/FontLoader.js';
+		import { OrbitControls } from './jsm/controls/OrbitControls.js';
+		import { GUI } from './jsm/libs/dat.gui.module.js';
+		var mixer, clock, model, texture, texture1, flag = true, animations = true, texturemedium;
+		clock = new THREE.Clock();
+		//var TextureLoader = new THREE.TextureLoader();
+		var loader1 = new THREE.TextureLoader();
+		//allow cross origin loading
+		loader1.crossOrigin = '';
+		var textureToShow = 0;
+		var i = -1, start, animates;
+		var Dark = [
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0000.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0045.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0090.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0135.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0180.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0225.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0270.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0315.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0360.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0405.jpg',
+			'./resources/3DModels/roast/Dark/Chicco_Color_235/0450.jpg'
+		];
+		var Medium = [
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0001.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0030.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0060.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0091.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0120.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0150.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0181.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0210.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0240.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0271.jpg',
+			'./resources/3DModels/roast/Medium/Chicco_Color_215/0300.jpg'
+		];
+
+		var j = 1;
+
+		var roating_completed = false;
+
+		init();
+		animate();
+
+		THREE.Cache.enabled = true;
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+			raycaster = new THREE.Raycaster();
+			mouse = new THREE.Vector2();
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 20);
+
+			var light = new THREE.AmbientLight(0xffffff, 0.5);
+			scene.add(light);
+
+			var light1 = new THREE.PointLight(0xffffff, 0.5);
+			scene.add(light1);
+
+			raycaster = new THREE.Raycaster();
+
+
+			var dirLight = new THREE.DirectionalLight(0xffffff);
+			dirLight.position.set(-3, -10, 10);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 10;
+			dirLight.shadow.camera.bottom = -10;
+			dirLight.shadow.camera.left = -10;
+			dirLight.shadow.camera.right = 10;
+			dirLight.shadow.camera.near = 0.1;
+			dirLight.shadow.camera.far = 40;
+			scene.add(dirLight);
+
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			renderer.xr.enabled = true;
+			container.appendChild(renderer.domElement);
+
+			pivot_point = new THREE.Object3D();
+			pivot_point.position.set(0, -1, -1);
+			pivot_point.rotation.set(0, 0, 0);
+			scene.add(pivot_point);
+
+			ObjectLoadingManager();
+			GLTFObjectLoader();
+			ARButtonActions();
+		}
+
+		window.addEventListener('resize', onWindowResize);
+
+		function ObjectLoadingManager() {
+			manager = new THREE.LoadingManager();
+
+			manager.onStart = function (url, itemsLoaded, itemsTotal) {
+				console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+			};
+			manager.onLoad = function () {
+				console.log('Loading complete!');
+				document.getElementById("footer_section").style.display = "block";
+				start = setInterval(change, 1200);
+				animates = setInterval(changeanimation, 16000);
+			};
+			manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+
+				if (itemsLoaded == itemsTotal) {
+					//document.getElementById("cup_position_img").style.display = "none";
+				}
+				console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+			};
+			manager.onError = function (url) {
+				console.log('There was an error loading ' + url);
+			};
+		}
+
+		function GLTFObjectLoader() {
+			let loader = new GLTFLoader(manager);
+
+			let name = roast[blend]["model"];
+			let position = roast[blend]["position"];
+			let scale = roast[blend]["scale"];
+
+			let path = 'resources/3DModels/roast/' + name + '.glb';
+
+			loader.load(path, function (gltf) {
+				answer_3dobject = gltf.scene;
+				mixer = new THREE.AnimationMixer(gltf.scene);
+				gltf.animations.forEach((animation) => {
+					mixer.clipAction(animation).play();
+				});
+				answer_3dobject.position.set(position[0], position[1], position[2]);  // 0.2
+				answer_3dobject.scale.set(scale[0], scale[1], scale[2]);
+				answer_3dobject.visible = true;
+				scene.add(answer_3dobject);
+			});
+		}
+		
+		function ARButtonActions() {
+			document.body.appendChild(ARButton.createButton(renderer, {
+				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
+				domOverlay: { root: document.body }
+			}));
+			document.getElementById("ARButton").click();
+		}
+
+		function onWindowResize() 
+		{
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		function changeanimation() 
+		{
+			animations = false;
+		};
+		function change() {
+
+			if (flag == true) 
+			{
+				let object_name = roast[BLEND]["model"]== 215 ? "chicco_Toast_low001" : "chicco_raw_low";
+				let path = roast[BLEND]["model"]== 215 ? Medium[textureToShow] : Dark[textureToShow];
+				loader1.load(path, function (tex) {
+					tex.flipY = false;
+					answer_3dobject.getObjectByName(object_name).material.map = tex;
+					textureToShow++;
+					if(textureToShow == 10) 
+					{
+						clearInterval(start);
+						flag = false;
+						roating_completed = true;
+					}
+				});
+			}
+		};
+		function playanimation() 
+		{
+			var delta = clock.getDelta();
+			if (mixer) mixer.update(delta);
+		}
+		
+		function animate() {
+			renderer.setAnimationLoop(render);
+		}
+
+		function render() {
+			playanimation();
+			renderer.render(scene, camera);
+		}
+
+
+	</script>
+
+</body>
+
+</html>

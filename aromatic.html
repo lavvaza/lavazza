@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Lavazza</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/main.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/common.css?v=1">
+	<script src="resources/jquery.min.js"></script>
+	<script src="./resources/js/model.js?v=1"></script>
+	<script src="./resources/js/utils.js?v=1"></script>
+
+	<style>
+
+		#footer_section {
+            position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 80px;
+			top: unset;
+			text-align: center;
+			height: 40px;
+        }
+
+        .instruction_text
+        {
+			width: auto;
+			padding: 12px;
+			color: #342012;
+			font-weight: bold;
+			font-size: 13px;
+			background: #e7ddbe;
+			margin: 0 10px;
+			border-radius: 10px;
+			height: 100%;
+			line-height: 1.2;
+			font-family: GothamMedium;
+        }
+
+		.instruction_text_content
+		{
+			width: 70%;
+			float: left;
+		}
+
+		#confirm_btn
+		{
+			float: right;
+		}
+		.bg_remove
+		{
+			background: unset;
+		}
+
+		#confirmtion_btn_id ,#navigation_btn_id
+		{
+			display: none;
+		}
+
+
+
+	</style>
+
+</head>
+<body>
+
+	<img class="home_icon" src="./resources/images/home.png" onclick="go_to_home()">
+	<div id="introduction_screen_text">
+		<div class="number_text">2</div>
+		<div class="line_text">___</div>
+		<div class="stage_text">NOTE</div>
+		<div class="stage_text">AROMATICHE</div>
+	</div>
+
+	<div id="footer_section">
+		
+		<div class="instruction_text" id="instruction_id">
+				PENSA AL CAFFE CHE HAI APPENA GUSTATO.<br/>
+				QUALE NOTA AROMATICA HAI PERCEPITO?
+		</div>
+
+		<div class="instruction_text" id="confirmtion_btn_id">
+			<span class="instruction_text_content">
+				<div>CONFERMA LA TUA SCELTA</div>
+				O SELEZIONA UN'ALTRA NOTA <br>
+				PRIMA DI CONTINUARE
+			</span>
+			<img class="arrow_icon" src="./resources/images/arrow_dark.png" 
+			id="confirm_btn">
+		</div>
+
+		<div class="instruction_text bg_remove" id="navigation_btn_id">
+			<img class="arrow_icon" src="./resources/images/arrow_dark.png" 
+			id="navigation_btn" onclick="navigateNext()">
+		</div>
+
+	</div>
+
+	<script>
+
+		let blend = BLEND;
+
+		var model3d = blends[blend]["models"];
+		var camera, scene, renderer,container,raycaster,mouse,pivot_point,manager;
+
+		var model_object = {};
+		var correct_3dobject;
+		var wrong_3dobject;
+		var answer_3dobject;
+		var model_selection = {};
+		var user_selected = [];
+
+		var is_correct = false;
+
+		setTimeout(function() 
+		{
+			document.getElementById('footer_section').style.display = "block";
+			document.getElementById("introduction_screen_text").remove();
+			$(".home_icon").remove();
+
+		},3 * 1000)
+
+		function navigateNext()
+		{
+			window.location = "organoleptic.html?blend="+BLEND;
+		}
+
+
+
+	</script>
+
+	<script type="module">
+
+		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+		import { ARButton } from './jsm/webxr/ARButton.js';
+		import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+		import { TTFLoader } from './jsm/loaders/TTFLoader.js';
+		import { FontLoader } from './jsm/loaders/FontLoader.js';
+		import { OrbitControls } from './jsm/controls/OrbitControls.js';
+		import { GUI } from './jsm/libs/dat.gui.module.js';
+
+
+
+		var mixer, clock;
+		clock = new THREE.Clock();
+
+		init();
+		animate();
+
+		THREE.Cache.enabled = true;
+
+		function init() 
+		{
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+			raycaster = new THREE.Raycaster();
+			mouse = new THREE.Vector2();
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 20);
+
+			var light = new THREE.AmbientLight(0xffffff, 0.5);
+			scene.add(light);
+
+			var light1 = new THREE.PointLight(0xffffff, 0.5);
+			scene.add(light1);
+
+			raycaster = new THREE.Raycaster();
+
+			var dirLight = new THREE.DirectionalLight(0xffffff);
+			dirLight.position.set(-3, -10, 10);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 10;
+			dirLight.shadow.camera.bottom = -10;
+			dirLight.shadow.camera.left = -10;
+			dirLight.shadow.camera.right = 10;
+			dirLight.shadow.camera.near = 0.1;
+			dirLight.shadow.camera.far = 40;
+			scene.add(dirLight);
+
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			renderer.xr.enabled = true;
+			container.appendChild(renderer.domElement);
+
+			pivot_point = new THREE.Object3D();
+			pivot_point.position.set(0, -1, -1);
+			pivot_point.rotation.set(0, 0, 0);
+			scene.add(pivot_point);
+
+			ObjectLoadingManager();
+			GLTFObjectLoader();
+			ARButtonActions();
+			CreateCircle();
+		}
+
+		renderer.domElement.addEventListener('click', onSelectStart);
+		renderer.domElement.addEventListener('selectstart', onSelectStart);
+		document.getElementById("confirm_btn").addEventListener("click", confirmSelection);
+
+		window.addEventListener('resize', onWindowResize);
+		
+		function ObjectLoadingManager() 
+		{
+			manager = new THREE.LoadingManager();
+
+			manager.onStart = function (url, itemsLoaded, itemsTotal) 
+			{
+				console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+			};
+			manager.onLoad = function () 
+			{
+				console.log('Loading complete!');
+			};
+			manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+
+				if (itemsLoaded == itemsTotal) {
+					//document.getElementById("cup_position_img").style.display = "none";
+				}
+				console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+			};
+			manager.onError = function (url) {
+				console.log('There was an error loading ' + url);
+			};
+		}
+
+		function GLTFObjectLoader() 
+		{
+			let loader = new GLTFLoader(manager);
+
+			model3d.forEach(function(item, index, arr)
+			{
+				let path = 'resources/3DModels/'+blend+'/'+item+'.glb';
+				let position = model_prop[blend+"_"+item]["position"];
+				let scale = model_prop[blend+"_"+item]["scale"];
+				loader.load(path, function (gltf) 
+				{
+					model_object[item] = gltf.scene;
+					model_object[item].position.set(position[0], position[1], position[2]);  // 0.2
+					model_object[item].scale.set(scale[0], scale[1], scale[2]);
+					scene.add(model_object[item]);
+				});
+
+				if(model3d.length == (index + 1))
+				{
+					loadCorrectText();
+					loadWrongText();
+					loadAnswer3D();
+				}
+			});
+
+		}
+
+
+		function ARButtonActions() {
+			document.body.appendChild(ARButton.createButton(renderer, {
+				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
+				domOverlay: { root: document.body }
+			}));
+			document.getElementById("ARButton").click();
+		}
+
+
+		function CreateCircle() 
+		{
+
+			model3d.forEach(function(item, index, arr)
+			{
+				let position = model_prop[blend+"_"+item]["circle_position"];
+				let scale = model_prop[blend+"_"+item]["circle_scale"];
+
+				let geometry = new THREE.CircleGeometry(0.013, 100);
+				let material = new THREE.MeshBasicMaterial({ color: 0xffffff, opacity: 0, transparent: true, });
+
+				model_selection[item] = new THREE.Mesh(geometry, material);
+				model_selection[item].position.set(position[0],position[1],position[2]);
+				model_selection[item].name = item+"_circle";
+
+				let geometry1 = new THREE.CircleGeometry(0.009, 100);
+				let inner_circle = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+				model_selection[item+"_selection"] = new THREE.Mesh(geometry1, inner_circle);
+				model_selection[item+"_selection"].position.set(0, 0, 0);
+				model_selection[item].add(model_selection[item+"_selection"]);
+				scene.add(model_selection[item]);
+				
+			});
+
+			// CicleVisible(false);
+		}
+
+		function onSelectStart(event) 
+		{
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+			raycaster.setFromCamera(mouse, camera);
+
+			const intersections = raycaster.intersectObjects(scene.children, true);
+
+			if (intersections.length > 0) 
+			{
+				const intersection = intersections[0];
+				const object = intersection.object;
+
+				let selected = object.name.split("_");
+
+				let models = blends[blend]["models"];
+				let answer = blends[blend]["answer"];
+
+				if(models.includes(selected[0]))
+				{
+					user_selected.push(object.name);
+					setCircleSelection(object.name,selected[0]);
+				}
+
+				if(answer.includes(selected[0]))
+				{
+					is_correct = true;
+				}
+
+				if(user_selected.length > 0)
+				{
+					document.getElementById("instruction_id").style.display = "none";									
+					document.getElementById("confirmtion_btn_id").style.display = "block";									
+				}
+			}
+		}
+
+		
+
+		function onWindowResize() 
+		{
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		function animate() {
+			renderer.setAnimationLoop(render);
+		}
+
+		function render() 
+		{
+			var delta = clock.getDelta();
+			if (mixer) mixer.update(delta);
+			renderer.render(scene, camera);
+		}
+
+		function setCircleVisibility(flag)
+		{
+			$.each(model_selection,function(key,value)
+			{
+				value.visible = flag;
+			});
+		}
+		function setModelVisibility(flag)
+		{
+			$.each(model_object,function(key,value)
+			{
+				value.visible = flag;
+			});
+		}
+
+		function setCircleSelection(name,circle_name)
+		{
+			$.each(model_selection,function(key,value)
+			{
+				if(key.trim() == circle_name+"_selection".trim())
+				{
+					model_selection[circle_name+"_selection"].material.color.set(0, 0, 0)
+				}
+			});
+		}
+
+
+		function confirmSelection()
+		{
+			document.getElementById("confirmtion_btn_id").style.display = "none";									
+			document.getElementById("navigation_btn_id").style.display = "block";
+			setModelVisibility(false);
+			setCircleVisibility(false);
+			is_correct ? correct_3dobject.visible = true : wrong_3dobject.visible = true;
+			answer_3dobject.visible = true;
+		}
+
+		function loadCorrectText()
+		{
+
+			let loader = new GLTFLoader(manager);
+
+			let name = ans_model_prop[blend]["correct_model"];
+			let position = ans_model_prop[blend]["correct_position"];
+			let scale = ans_model_prop[blend]["correct_scale"];
+
+			let path = 'resources/3DModels/'+blend+'/'+name+'.glb';
+			loader.load(path, function (gltf) 
+			{
+				correct_3dobject = gltf.scene;
+				correct_3dobject.position.set(position[0], position[1], position[2]);  // 0.2
+				correct_3dobject.scale.set(scale[0], scale[1], scale[2]);
+
+				mixer = new THREE.AnimationMixer(gltf.scene);
+
+				gltf.animations.forEach((animation) => {
+					mixer.clipAction(animation).play();
+				});
+
+				correct_3dobject.visible = false;
+				scene.add(correct_3dobject);
+			});
+		}
+
+		function loadWrongText()
+		{
+			let loader = new GLTFLoader(manager);
+
+			let name = ans_model_prop[blend]["wrong_model"];
+			let position = ans_model_prop[blend]["wrong_position"];
+			let scale = ans_model_prop[blend]["wrong_scale"];
+
+			let path = 'resources/3DModels/'+blend+'/'+name+'.glb';
+			loader.load(path, function (gltf) 
+			{
+				wrong_3dobject = gltf.scene;
+				wrong_3dobject.position.set(position[0], position[1], position[2]);  // 0.2
+				wrong_3dobject.scale.set(scale[0], scale[1], scale[2]);
+				wrong_3dobject.visible = false;
+				scene.add(wrong_3dobject);
+			});
+		}
+		function loadAnswer3D()
+		{
+			let loader = new GLTFLoader(manager);
+
+			let name = ans_model_prop[blend]["model"];
+			let position = ans_model_prop[blend]["position"];
+			let scale = ans_model_prop[blend]["scale"];
+
+			let path = 'resources/3DModels/'+blend+'/'+name+'.glb';
+
+			loader.load(path, function (gltf) 
+			{
+				answer_3dobject = gltf.scene;
+				answer_3dobject.position.set(position[0], position[1], position[2]);  // 0.2
+				answer_3dobject.scale.set(scale[0], scale[1], scale[2]);
+				answer_3dobject.visible = false;
+				scene.add(answer_3dobject);
+			});
+		}
+
+		
+
+
+	</script>
+
+</body>
+</html>

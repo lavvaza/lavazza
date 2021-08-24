@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta name="viewport" content="initial-scale=1, maximum-scale=1"> -->
+
+    <script src="resources/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="resources/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="resources/css/common.css?v=1">
+    
+    
+    <script src="resources/bootstrap.min.js"></script>
+    <script src="./resources/js/utils.js?v=1"></script>
+    <script src="./resources/js/constant.js?v=1"></script>
+
+    <style>
+        html,
+        body {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+        }
+        html
+        {
+            background: white;
+        }
+        .container-fluid
+        {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            background-image: url("./resources/images/silhouette.png");
+            background-size: 100% 100%;
+            padding: 0;
+            
+        }
+        
+        
+        body {
+            background-image: linear-gradient(#d8ccA7, #503a30);
+            margin: 0 35%;
+        }
+
+        #introduction_screen
+        {
+            text-align: center;
+            position: absolute;
+            top: 10%;
+            color: #311a12;
+            font-size: 20px;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            /* For mobile phones: */
+            [class*="col-"] {
+                max-width: 100% !important;
+                flex: 0 0 100%;
+            }
+            body
+            {
+                margin: 0;
+            }
+        }
+    </style>
+
+    <body>
+        <div class="container-fluid">
+
+            <div id="introduction_screen">
+                GUSTA ATTENTAMENTE<br>
+                IL TUOCAFFE<br>
+                PRIMA DI CONTINUARE<br>
+            </div>
+
+
+            <img class="home_icon" src="./resources/images/home_dark.png" onclick="go_to_home()">
+        </div>
+
+        <script>
+
+            let data = {
+                "mode" : "entry",
+                "blend_name" : BLEND,
+                "stage" : stages["TasteYourCoffee"]
+            }
+            api_call(data)
+
+            setTimeout(function() {
+                window.location = "./instruction2.html?blend="+BLEND;
+            },3 * 1000)
+
+        </script>
+    </body>
+</html>

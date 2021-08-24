@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Lavazza</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/main.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/common.css?v=1">
+	<script src="resources/jquery.min.js"></script>
+	<script src="./resources/js/model.js?v=1"></script>
+	<script src="./resources/js/utils.js?v=1"></script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+
+	<style>
+		#footer_section {
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			top: unset;
+			text-align: center;
+			height: 100px;
+			display: none;
+		}
+
+		.navigation_btn {
+			font-size: 50px;
+			padding: 2px 18px;
+			line-height: 1;
+			border-radius: 100%;
+			color: brown;
+			background: white;
+			border: unset;
+		}
+	</style>
+</head>
+
+<body>
+
+
+	<div id="footer_section">
+		<img class="arrow_icon" src="./resources/images/arrow_dark.png" 
+			id="navigation_btn" onclick="confirmSelection()">
+			<span id="output_test">
+
+			</span>
+	</div>
+
+	<img id="test_img" src="" height="100" width="50" style="position: absolute;top:0;right: 0;;"/> 
+	<script>
+
+		const URL = "./resources/trained/";
+
+		var model_TM,maxPredictions,video;
+
+		let blend = BLEND;
+
+		var model3d = roast[blend]["model"];
+		var camera, scene, renderer, container, raycaster, mouse, pivot_point, manager;
+
+		// setTimeout(function() 
+		// {
+			document.getElementById('footer_section').style.display = "block";
+
+		// },3 * 1000)
+
+		// function confirmSelection() {
+		// 	window.location.href = "aromatic.html?blend="+BLEND;
+		// }
+
+
+	 
+
+	</script>
+
+	<script type="module">
+
+		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+		import { ARButton } from './jsm/webxr/ARButton.js';
+		import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+		import { TTFLoader } from './jsm/loaders/TTFLoader.js';
+		import { FontLoader } from './jsm/loaders/FontLoader.js';
+		import { OrbitControls } from './jsm/controls/OrbitControls.js';
+		import { GUI } from './jsm/libs/dat.gui.module.js';
+		var mixer, clock, model, texture, texture1, flag = true, animations = true, texturemedium;
+		clock = new THREE.Clock();
+		//var TextureLoader = new THREE.TextureLoader();
+		var loader1 = new THREE.TextureLoader();
+		//allow cross origin loading
+		loader1.crossOrigin = '';
+		var textureToShow = 0;
+
+		var base64 = "";
+		var ar_canvas = "";
+
+		init();
+		animate();
+
+		THREE.Cache.enabled = true;
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+			raycaster = new THREE.Raycaster();
+			mouse = new THREE.Vector2();
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 20);
+
+			var light = new THREE.AmbientLight(0xffffff, 0.5);
+			scene.add(light);
+
+			var light1 = new THREE.PointLight(0xffffff, 0.5);
+			scene.add(light1);
+
+			raycaster = new THREE.Raycaster();
+
+			var dirLight = new THREE.DirectionalLight(0xffffff);
+			dirLight.position.set(-3, -10, 10);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 10;
+			dirLight.shadow.camera.bottom = -10;
+			dirLight.shadow.camera.left = -10;
+			dirLight.shadow.camera.right = 10;
+			dirLight.shadow.camera.near = 0.1;
+			dirLight.shadow.camera.far = 40;
+			scene.add(dirLight);
+
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			renderer.xr.enabled = true;
+			renderer.domElement.id = "ar_canvas";
+			container.appendChild(renderer.domElement);
+
+			pivot_point = new THREE.Object3D();
+			pivot_point.position.set(0, -1, -1);
+			pivot_point.rotation.set(0, 0, 0);
+			scene.add(pivot_point);
+
+			ARButtonActions();
+		}
+
+		window.addEventListener('resize', onWindowResize);
+
+		function ARButtonActions() {
+			document.body.appendChild(ARButton.createButton(renderer, {
+				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
+				domOverlay: { root: document.body }
+			}));
+			document.getElementById("ARButton").click();
+		}
+
+		function onWindowResize() 
+		{
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+		
+		function animate() {
+			renderer.setAnimationLoop(render);
+		}
+
+		function render() {
+			renderer.render(scene, camera);
+		}
+
+
+		function htmlToCanvas()
+		{
+			let screenshotTarget = document.getElementById("ar_canvas");
+			let rect = document.getElementById("ar_canvas").getBoundingClientRect();
+
+			html2canvas(screenshotTarget,{
+				x: rect.x,
+				y: rect.y,
+				width: rect.width,
+				height: rect.height
+
+			}).then((canvas) =>
+			{
+
+				document.getElementById("test_img").setAttribute("src",canvas.toDataURL('image/jpeg', 1))
+
+				
+				// test_img
+				// CupDetection(canvas);
+			});
+		}
+
+		async function CupDetection(arcanvas) {
+			const modelURL = URL + "model.json";
+			const metadataURL = URL + "metadata.json";
+			model_TM = await tmImage.load(modelURL, metadataURL);
+			maxPredictions = model_TM.getTotalClasses();
+			var classname = "";
+			const prediction = await model_TM.predict(arcanvas);
+			for (let i = 0; i < maxPredictions; i++) 
+			{
+				document.getElementById("output_test").innerHTML =  prediction[i].probability.toFixed(2) + prediction[i].className;
+				if (prediction[i].probability.toFixed(2) > 0.89) {
+					classname = prediction[i].className;
+				}
+			}
+
+			if (classname == 'Lavazza Cup') 
+			{
+				window.location.href = "roast_v1.html?blend="+BLEND;
+				console.log("Cub Detected");
+			}
+			else if (classname == 'Other Cup') 
+			{
+				console.log("Other Cub Detected");
+			}
+			else if (classname == 'No Cup') 
+			{
+				// document.getElementById("span1").innerHTML = "Place the Cup for detection";
+			}
+    	}
+
+
+		setInterval(function () {
+			// if(renderer.xr.isPresenting)
+				htmlToCanvas();
+				// CupDetection();
+			}, 4 * 1000)
+
+
+	</script>
+
+</body>
+
+</html>

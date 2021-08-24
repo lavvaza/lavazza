@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <script></script>
+
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
+    <script src="resources/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="resources/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="resources/css/common.css?v=1">
+    <script src="resources/bootstrap.min.js"></script>
+    <script src="resources/js/utils.js?v=1"></script>
+    <script src="resources/js/constant.js?v=1"></script>
+
+    <style>
+        html,
+        body {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+        }
+        .container-fluid
+        {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            background-image: url("./resources/images/page1.png");
+            background-size: 100% 100%;
+        }
+        
+        
+        body {
+            background-image: linear-gradient(#d8ccA7, #503a30);
+        }
+
+        .footer_section
+        {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: unset;
+            text-align: center;
+            height: 225px;
+            font-family: GothamMedium;
+        }
+
+        
+
+        .intro_text
+        {
+            font-size: 30px;
+            font-weight: bold;
+            color: #33171a;
+            line-height: 1;
+        }
+        .intro_text2
+        {
+            font-size: 30px;
+            color: white;
+            margin: 10px 0 15px 0;
+        }
+
+        .logo_section
+        {
+            text-align: center;
+            width: 100%;
+            height: auto;
+            margin-top: 5%;
+        }
+        .logo 
+        {
+            width: 80px;
+        }
+        
+        @media only screen and (max-width: 1025px) {
+            /* For mobile phones: */
+            [class*="col-"] 
+            {
+                max-width: 100% !important;
+                flex: 0 0 100%;
+            }
+            body 
+            {
+                margin: 0;
+            }
+        }
+    </style>
+
+    <body>
+        <div class="container-fluid">
+            <div class="logo_section">
+                <img class="logo" src="resources/images/logo.png"/>
+            </div>
+            <div class="footer_section">
+                <div class="intro_text">LAVAZZA</div>
+                <div class="intro_text">COFFEE EXPERIENCE</div>
+                <div class="intro_text2">
+                    INIZIA IL VIAGGIO
+                </div>
+                <a href="blend.html">
+                    <img class="arrow_icon" src="resources/images/arrow.png"/>
+                </a>
+            </div>
+        </div>
+
+        <script>
+            
+            let data = {
+                "mode" : "entry",
+                "blend_name" : "",
+                "stage" : stages["Welcome"]
+            }
+            api_call(data)
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Lavazza</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/main.css">
+	<link type="text/css" rel="stylesheet" href="./resources/css/common.css">
+	<script src="resources/jquery.min.js"></script>
+	<script src="./resources/js/model.js"></script>
+	<script src="./resources/js/utils.js"></script>
+	<style>
+		#footer_section {
+			position: absolute;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			top: unset;
+			text-align: center;
+			height: 100px;
+			display: none;
+
+		}
+
+		.navigation_btn {
+			font-size: 50px;
+			padding: 2px 18px;
+			line-height: 1;
+			border-radius: 100%;
+			color: brown;
+			background: white;
+			border: unset;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="footer_section">
+		<a id="navigation_btn" class="btn btn-primary navigation_btn">&#x203A;</a>
+	</div>
+	<script>
+
+		let blend = BLEND;
+
+		var model3d = roast[blend]["model"];
+		var camera, scene, renderer, container, raycaster, mouse, pivot_point, manager;
+
+		var model_object = {};
+		var correct_3dobject;
+		var wrong_3dobject;
+		var answer_3dobject;
+		var model_selection = {};
+		var user_selected = [];
+
+		var is_correct = false;
+
+
+	</script>
+
+	<script type="module">
+
+		import * as THREE from 'https://threejsfundamentals.org/threejs/resources/threejs/r127/build/three.module.js';
+		import { ARButton } from './jsm/webxr/ARButton.js';
+		import { GLTFLoader } from './jsm/loaders/GLTFLoader.js';
+		import { TTFLoader } from './jsm/loaders/TTFLoader.js';
+		import { FontLoader } from './jsm/loaders/FontLoader.js';
+		import { OrbitControls } from './jsm/controls/OrbitControls.js';
+		import { GUI } from './jsm/libs/dat.gui.module.js';
+		var mixer, clock, model, texture, texture1, flag = true, animations = true, texturemedium;
+		clock = new THREE.Clock();
+		var TextureLoader = new THREE.TextureLoader();
+		var i = -1, start, animates;
+		var Dark = ['0000.jpg', '0045.jpg', '0090.jpg', '0135.jpg', '0180.jpg', '0225.jpg', '0270.jpg', '0315.jpg', '0360.jpg', '0405.jpg', '0450.jpg'];
+		var Medium = ['0001.jpg', '0030.jpg', '0060.jpg', '0091.jpg', '0120.jpg', '0150.jpg', '0181.jpg', '0210.jpg', '0240.jpg', '0271.jpg', '0300.jpg'];
+		var j = 1;
+
+		init();
+		animate();
+
+		THREE.Cache.enabled = true;
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			scene = new THREE.Scene();
+			raycaster = new THREE.Raycaster();
+			mouse = new THREE.Vector2();
+
+			camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 20);
+
+			var light = new THREE.AmbientLight(0xffffff, 0.5);
+			scene.add(light);
+
+			var light1 = new THREE.PointLight(0xffffff, 0.5);
+			scene.add(light1);
+
+			raycaster = new THREE.Raycaster();
+
+
+			var dirLight = new THREE.DirectionalLight(0xffffff);
+			dirLight.position.set(-3, -10, 10);
+			dirLight.castShadow = true;
+			dirLight.shadow.camera.top = 10;
+			dirLight.shadow.camera.bottom = -10;
+			dirLight.shadow.camera.left = -10;
+			dirLight.shadow.camera.right = 10;
+			dirLight.shadow.camera.near = 0.1;
+			dirLight.shadow.camera.far = 40;
+			scene.add(dirLight);
+
+			renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			renderer.outputEncoding = THREE.sRGBEncoding;
+			renderer.xr.enabled = true;
+			container.appendChild(renderer.domElement);
+
+			pivot_point = new THREE.Object3D();
+			pivot_point.position.set(0, -1, -1);
+			pivot_point.rotation.set(0, 0, 0);
+			scene.add(pivot_point);
+
+			ObjectLoadingManager();
+			// GLTFLoaderRegister()
+			GLTFObjectLoader();
+			ARButtonActions();
+		}
+
+		document.getElementById("navigation_btn").addEventListener("click", confirmSelection);
+		window.addEventListener('resize', onWindowResize);
+
+		function ObjectLoadingManager() {
+			manager = new THREE.LoadingManager();
+
+			manager.onStart = function (url, itemsLoaded, itemsTotal) {
+				console.log('Started loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+			};
+			manager.onLoad = function () {
+				console.log('Loading complete!');
+				document.getElementById("footer_section").style.display = "block";
+				start = setInterval(change, 1200);
+				animates = setInterval(changeanimation, 16000);
+			};
+			manager.onProgress = function (url, itemsLoaded, itemsTotal) {
+
+				if (itemsLoaded == itemsTotal) {
+					//document.getElementById("cup_position_img").style.display = "none";
+				}
+				console.log('Loading file: ' + url + '.\nLoaded ' + itemsLoaded + ' of ' + itemsTotal + ' files.');
+			};
+			manager.onError = function (url) {
+				console.log('There was an error loading ' + url);
+			};
+		}
+
+		function GLTFLoaderRegister(loader) {
+			loader.register(function (parser) {
+				parser.createUniqueName = function (originalName) { return originalName; };
+				return {
+					name: 'OriginalNamesAndHierarchy', createNodeAttachment: function (nodeIndex) {
+						let nodes = parser.json.nodes, meshes = parser.json.meshes;
+						if (nodes[nodeIndex] && meshes[nodes[nodeIndex].mesh]) {
+							return Promise.resolve(new THREE.Group());
+						}
+					}
+				};
+			});
+		}
+
+		function GLTFObjectLoader() {
+			let loader = new GLTFLoader(manager);
+
+
+			let glb_name = loader.register( function( parser ) {
+				parser.createUniqueName = function ( originalName ) { return originalName; };
+
+				console.log("test",parser);
+
+				return { name: 'OriginalNamesAndHierarchy', createNodeAttachment: function ( nodeIndex ) {
+					let nodes = parser.json.nodes, meshes = parser.json.meshes;
+					if( nodes[ nodeIndex ] && meshes[ nodes[ nodeIndex ].mesh ] ) {
+						return Promise.resolve( new THREE.Group() );
+					}
+				} };
+			});
+
+
+			let name = roast[blend]["model"];
+			let position = roast[blend]["position"];
+			let scale = roast[blend]["scale"];
+
+			let path = 'resources/3DModels/roast/' + name + '.glb';
+
+			loader.load(path, function (gltf) {
+				answer_3dobject = gltf.scene;
+				mixer = new THREE.AnimationMixer(gltf.scene);
+				gltf.animations.forEach((animation) => {
+					mixer.clipAction(animation).play();
+				});
+				answer_3dobject.position.set(position[0], position[1], position[2]);  // 0.2
+				answer_3dobject.scale.set(scale[0], scale[1], scale[2]);
+				answer_3dobject.visible = true;
+				scene.add(answer_3dobject);
+			})
+		}
+		function confirmSelection() {
+			window.location.href = "aromatic.html?blend=india";
+		}
+		function ARButtonActions() {
+			document.body.appendChild(ARButton.createButton(renderer, {
+				optionalFeatures: ['dom-overlay', 'dom-overlay-for-handheld-ar'],
+				domOverlay: { root: document.body }
+			}));
+			document.getElementById("ARButton").click();
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		function changeanimation() {
+
+			animations = false;
+
+		};
+		function change() {
+			i++;
+			if (blend == "brasileblend" || blend == "brasileextraintenso") {
+				textureLoader(Dark[i]);
+			} else {
+				textureLoader(Medium[i]);
+			}
+
+			console.log(i);
+			if (i == 10) {
+				clearInterval(start);
+				flag = false;
+
+			}
+
+		};
+		function playanimation() {
+			var delta = clock.getDelta();
+
+			if (mixer) mixer.update(delta);
+		}
+		function textureLoader(s) {
+
+			console.log(s);
+			if (blend == "brasileblend" || blend == "brasileextraintenso") {
+				var path = './resources/3DModels/roast/Dark/Chicco_Color_235/';
+				//var format = '.jpg';
+				texture = TextureLoader.load(path + s);
+				texture.flipY = false;
+				if (flag == true) {
+					answer_3dobject.getObjectByName("Mesh.029").material.smoothShading = true;
+					answer_3dobject.getObjectByName("Mesh.029").material.map = texture;
+
+				}
+			} else {
+				var path = './resources/3DModels/roast/Medium/Chicco_Color_215/';
+				//var format = '.jpg';
+				texturemedium = TextureLoader.load(path + s);
+				texturemedium.flipY = false;
+				if (flag == true) {
+					answer_3dobject.getObjectByName("Mesh.029").material.map = texturemedium;
+					answer_3dobject.getObjectByName("Mesh.029").material.smoothShading = true;
+				}
+			}
+
+
+			//return texture
+		}
+		function animate() {
+			renderer.setAnimationLoop(render);
+		}
+
+		function render() {
+
+			playanimation();
+
+			renderer.render(scene, camera);
+		}
+
+
+	</script>
+
+</body>
+
+</html>

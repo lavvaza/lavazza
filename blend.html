@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <script></script>
+
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
+    <script src="resources/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="resources/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="resources/css/common.css">
+    <script src="resources/bootstrap.min.js"></script>
+    <script src="resources/js/utils.js"></script>
+    <script src="resources/js/constant.js"></script>
+
+    <style>
+       
+        .container-fluid
+        {
+            /* position: fixed; */
+           
+            background-image: linear-gradient(#d8ccA7, #503a30);
+            overflow: auto;
+            height: 100%;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        body
+        {
+            background-image: linear-gradient(#d8ccA7, #503a30);
+        }
+
+        .blend_image
+        {
+            width: 100%;
+        }
+
+        .intro_section
+        {
+            height: 17%;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            padding: 30px 0;
+            font-family: GothamMedium;
+        }
+
+        .main_section
+        {
+            padding: 0 10%;
+        }
+
+        .row 
+        {
+            margin-top: 10px;
+            margin-left: unset;
+            margin-right: unset;
+        }
+
+        .intro_text
+        {
+            font-size: 15px;
+            color: #311815;
+            line-height: 1.2;
+        }
+
+        .text_bold
+        {
+            font-weight: bold;
+        }
+        
+        @media only screen and (max-width: 1025px) {
+            /* For mobile phones: */
+            /* [class*="col-"] {
+                max-width: 100% !important;
+                flex: 0 0 100%;
+            } */
+            body {
+                margin: 0;
+            }
+        }
+    </style>
+
+    <body>
+        <div class="container-fluid">
+            <div class="intro_section">
+                <div class="intro_text text_bold">SELEZIONA IL PRODOTTO</div>
+                <div class="intro_text text_bold">CHE STAI GUSTANDO</div>
+                <div class="intro_text">E INIZIA L'EXPERIENCE</div>
+            </div>
+            <div class="main_section">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=colombia">
+                        <img class="blend_image" src="resources/buttons/Colombia.png"/>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=selection">
+                        <img class="blend_image" src="resources/buttons/Selection.png"/>
+                        </a>
+                    </div>
+               </div>
+               <div class="row">
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=brasile">
+                        <img class="blend_image" src="resources/buttons/Brasile_100_.png"/>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=india">
+                        <img class="blend_image" src="resources/buttons/India.png"/>
+                        </a>
+                    </div>
+               </div>
+
+               <div class="row">
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=brasileblend">
+                        <img class="blend_image" src="resources/buttons/Brasile_Blend.png"/>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=brasileextraintenso">
+                        <img class="blend_image" src="resources/buttons/Brasile_Extra.png"/>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=alteco">
+                        <img class="blend_image" src="resources/buttons/Alteco.png"/>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="instruction1.html?blend=altecodecaf">
+                        <img class="blend_image" src="resources/buttons/Alteco_Decaf.png"/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+
+            let data = {
+                "mode" : "entry",
+                "blend_name" : "",
+                "stage" : stages["Blend"]
+            }
+            api_call(data)
+
+        </script>
+
+    </body>
+</html>

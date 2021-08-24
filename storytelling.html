@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
+    <script src="resources/jquery.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="resources/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="resources/css/common.css">
+    <script src="resources/bootstrap.min.js"></script>
+    <script src="./resources/js/utils.js"></script>
+    <script src="./resources/js/constant.js"></script>
+
+    <style>
+        html,
+        body {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+        }
+        .container-fluid
+        {
+          overflow: auto;
+            height: 100%;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        
+        
+        body {
+            background-image: linear-gradient(#d8ccA7, #503a30);
+        }
+
+        #lavazza_video
+        {
+          width: 100%;
+          display: block;
+          position: relative;
+          border-radius: 16px;
+          overflow: hidden;
+        }
+
+        #reload_icon
+        {
+            height: 20px;
+            float: left;
+            margin-left: 10px;
+        }
+       #fullscreen_icon
+        {
+            height: 20px;
+            float: right;
+            margin-right: 10px;
+        }
+
+        .intro_section
+        {
+            height: 30%;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            padding: 30px 0;
+            font-family: GothamMedium;
+        }
+
+        .main_section
+        {
+          padding: 5px 10px;
+        }
+
+        .row 
+        {
+            margin-left: unset;
+            margin-right: unset;
+        }
+
+        .intro_text
+        {
+            font-size: 10px;
+            color: #311815;
+            line-height: 1.2;
+            font-family: GothamMedium;
+        }
+
+        .text_bold
+        {
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        #footer_section {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: unset;
+            text-align: center;
+            height: 100px;
+			      display: block;
+        }
+
+        .call_action_text
+        {
+          width: auto;
+          padding: 15px;
+          color: white;
+          font-weight: bold;
+          font-size: 23px;
+          border: 3px solid white;
+          margin: 0 40px;
+          border-radius: 2px;
+        }
+        
+    </style>
+
+    <body>
+        <div class="container-fluid">
+
+          <div class="intro_section">
+            <div class="intro_text">E INIZIA L'EXPERIENCE</div>
+            <div class="intro_text text_bold">SELEZIONA IL PRODOTTO</div>
+            <div class="intro_text text_bold">CHE STAI GUSTANDO</div>
+        </div>
+
+        <div class="main_section">
+            <video id="lavazza_video" controls 
+                onended="on_end_video()" 
+                onplay="on_video_play()">
+                <source id="video_source" src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+         
+          <div class="row">
+            <div class="col-6">
+                <img id="reload_icon" src="./resources/images/reload.png" 
+                onclick="restart_video()">
+            </div>
+            <div class="col-6">
+               <img id="fullscreen_icon" src="./resources/images/fullscreen.png" 
+               onclick="show_fullscreen()"> 
+            </div>
+          </div>
+
+
+          <div id="footer_section">
+              <div class="call_action_text">
+                  CALL TO ACTION TBD
+              </div>
+          </div>
+
+        </div>
+
+        <script>
+
+
+          let link = "./resources/video/"+video_url[BLEND]+".mp4";
+
+          let source = document.getElementById('video_source') 
+          source.setAttribute("src",link);
+            
+
+          
+
+          function on_end_video(e) 
+          {
+              $("#restart_btn").css({
+                  "pointer - events": "auto",
+                  "opacity": "1"
+              });
+          };
+
+          function on_video_play(e) {
+              $("#restart_btn").css({
+                  "pointer - events": "none",
+                  "opacity": " 0.5"
+              });
+          };
+
+          function restart_video() 
+          {
+              var video = document.getElementById('lavazza_video');
+              video.pause();
+              video.currentTime = 0;
+              video.load();
+              video.play();
+          }
+
+          function show_fullscreen()
+          {
+            var videoElement = document.getElementById('lavazza_video');    
+            videoElement.webkitRequestFullScreen();
+          }
+
+
+            // let data = {
+            //     "mode" : "entry",
+            //     "blend_name" : BLEND,
+            //     "stage" : stages["TasteYourCoffee"]
+            // }
+            // api_call(data)
+
+            // setTimeout(function() {
+            //     window.location = "./instruction2.html?blend="+BLEND;
+            // },3 * 1000)
+        </script>
+    </body>
+</html>
